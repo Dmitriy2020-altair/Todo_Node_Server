@@ -1,0 +1,150 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	background-color: rgb(231, 233, 233);
+}
+
+#todo {
+	margin: 10%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.todo-input {
+	text-align: center;
+	width: 60%;
+	height: 40px;
+	font-size: 20px;
+	border-radius: 5px;
+	border:1px solid grey;
+	box-shadow: 0 0 2px;
+}
+
+.todo-pushbtn {
+	background-color: rgb(36, 5, 173);
+	border-radius: 3px;
+	color: aliceblue;
+	border: none;
+	margin-top: 1%;
+	width: 70px;
+	height: 30px;
+	transition: .4s;
+}
+
+.todo-pushbtn:hover {
+	background-color: rgb(83, 45, 253);
+	box-shadow: 0 0 5px black;
+	color: rgb(192, 198, 204);
+}
+
+.todo-pushbtn:active {
+	background-color: rgb(191, 180, 245);
+	border-color: transparent;
+}
+
+.todo-title {
+	margin-right: 10px;
+	font-size: 20px;
+	font-weight: 700;
+	font-style: italic;
+	text-transform: capitalize;
+}
+
+.todo-num {
+	margin-right: 10px;
+	color: rgb(21, 4, 119);
+	font-size: 20px;
+	text-shadow: 1px 1px 5px rgb(29, 27, 27);
+
+
+}
+
+.todo-item {
+	display: flex;
+	justify-content: space-between;
+	margin: 5px;
+}
+
+.done {
+	text-decoration: line-through;
+} 
+
+.todo-editbtn {
+	margin-left: auto;
+	background-color: rgb(85, 200, 253);
+	border: none;
+	border-radius: 3px;
+	margin-right: 5px;
+	color: rgb(59, 59, 59);
+}
+
+.todo-editbtn:hover {
+	background-color: rgb(7, 172, 248);
+	box-shadow: 0 0 5px black;
+}
+
+
+
+.todo-choosenbtn{
+	background-color: rgb(148, 224, 6);
+	border: none;
+	border-radius: 3px;
+	margin-right: 5px;
+	color: rgb(59, 59, 59);
+	transition: .3s;
+
+}
+
+.todo-choosenbtn:hover {
+	background-color: rgb(34, 247, 6);
+	box-shadow: 0 0 5px black;
+}
+
+.todo-choosenbtn:active {
+	background-color: rgb(3, 194, 61);
+	color: rgb(231, 233, 233);
+}
+
+
+.todo-deletebtn{
+	background-color: rgb(252, 88, 47);
+	border: none;
+	border-radius: 3px;
+	margin-right: 3px;
+	color: rgb(226, 223, 223);
+	transition: .3s;
+
+}
+
+.todo-deletebtn:hover {
+	background-color: rgb(243, 9, 9);
+	box-shadow: 0 0 5px black;
+}
+
+.todo-deletebtn:active {
+	background-color: rgb(247, 128, 157);
+
+}
+
+.todo-edited {
+	margin-left: auto;
+	background-color: rgb(20, 24, 243);
+	border: none;
+	border-radius: 3px;
+	margin-right: 3px;
+	color: #fff;
+	transition: .3s;
+}
+
+.todo-edited:hover {
+	background-color: rgb(78, 160, 253);
+}
+
+.subtitle-warning {
+	font-size: 40px;
+	color: rgb(39, 31, 83);
+	text-shadow: 1px 1px 5px grey;
+}
