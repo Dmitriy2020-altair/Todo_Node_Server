@@ -7,7 +7,7 @@ const todos = {
 	maxId: 2,
 	data: [
 		{ id: 1, title: 'Learn JavaScript', isDone: false, isWriteble: false },
-		{ id: 2, title: 'Sanek rulit in JavaScript', isDone: false, isWriteble: false },
+		{ id: 2, title: 'Move forward in JavaScript', isDone: false, isWriteble: false },
 	]
 }
 
