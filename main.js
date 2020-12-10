@@ -1,67 +1,22 @@
 'use strict';
 
 class TodoModel {
-	constructor(todo = []) {
-		this._todos = todos;
+	constructor() {
+		this._todos;
 		this._subscribers = [];
 		this._writeMode = false;
-
-		this.notify();
-	}
-
-	addTodo(todo) {
-		const copyOfTodos = this._todos.slice();
-
-		copyOfTodos.push(todo);
-
-		this._todos = copyOfTodos;
-		this.notify();
-	}
-
-	removeTodo(todoId) {
-		const newTodos = this._todos.filter(todo => todo.id !== todoId);
-
-		this._todos = newTodos;
-		this.notify();
-	}
-
-	toggleTodoDone(todoId) {
-		const todo = this._todos.find(todo => todo.id === todoId);
-		const todoIndex = this._todos.findIndex(todo => todo.id === todoId);
-		const newTodos = this._todos.slice();
-
-		newTodos[todoIndex].isDone = !todo.isDone;
-
-		this._todos = newTodos;
-		this.notify();
 	}
 
 	toggleTodoWriteble(todoId) {
-		const todo = this._todos.find(todo => todo.id === todoId);
-		const todoIndex = this._todos.findIndex(todo => todo.id === todoId);
+		const todo = this._todos.find(todo => todo.id === +todoId);
+		const todoIndex = this._todos.findIndex(todo => todo.id === +todoId);
+		if (todoIndex === -1) return;
 		const newTodos = this._todos.slice();
 
-		if (todo.isWriteble === false) {
-			this._writeMode = true;
-		} else {
-			this._writeMode = false;
-		}
+		this._writeMode = true;
 
-		newTodos[todoIndex].isWriteble = !todo.isWriteble;
+		newTodos[todoIndex].isWriteble = true;
 
-		this._todos = newTodos;
-		this.notify();
-	}
-
-	changeTodoTitle({todoId, newTitle}) {
-		const todo = this._todos.find(todo => todo.id === todoId);
-		const todoIndex = this._todos.findIndex(todo => todo.id === todoId);
-		const newTodos = this._todos.slice();
-
-		newTodos[todoIndex].title = newTitle;
-		newTodos[todoIndex].isWriteble = false;
-
-		this._writeMode = false;
 		this._todos = newTodos;
 		this.notify();
 	}
@@ -85,9 +40,10 @@ class TodoModel {
 }
 
 class TodoView {
-	constructor(containerId) {
+	constructor(containerId, model) {
 		this.container = document.getElementById(containerId);
 		this.dispatch;
+		this.model = model;
 		this.container.addEventListener('click', this.handleclick);
 	}
 
@@ -108,65 +64,56 @@ class TodoView {
 			if (input.value === '') return;
 
 			this.dispatch({
-				type: 'ADD-TODO', payload: {
-				id: (new Date().toJSON()),
-				isDone: false,
-				title: input.value,
-				isWriteble: false,
-				}
+				type: 'ADD-TODO', payload: input.value
 			})
 		}
 		if (editBtn) this.dispatch({ type: 'TOGGLE-TODO-WRITEBLE', payload: todoId });
 		if (agreeBtn) {
 			const todoItem = target.closest('.todo-item');
-			const todoTitle = todoItem.querySelector('.todo-title')
+			const todoTitle = todoItem.querySelector('.todo-title');
 
 			this.dispatch({
 				type: 'CHANGE-TODO-TILE', payload: {
-				todoId: todoId,
-				newTitle: todoTitle.value,
-			} })
+					todoId: todoId,
+					newTitle: todoTitle.value,
+				}
+			})
 		}
 
 	}
 
 	render() {
-		const todos = this.dispatch({ type: 'GET-TODOS' });
+		const todos = this.model._todos;
 		const writeMode = this.dispatch({ type: 'GET-WRITEMODE' });
-		
+
 		this.container.innerHTML = (`
 		<input type="text" class="todo-input" placeholder="Create your todo">
-		<button class="todo-pushbtn">Push</button>
-		<ul class="todo-list">${
-			
-			(todos.length) ? (
+		<button ${writeMode && 'disabled'} class="btn todo-pushbtn">Push</button>
+		<ul class="todo-list">${(todos.length) ? (
 				todos.map((todo, index) => (`
 
-				<li class="todo-item" item=${ todo.id }>
-					<span class="todo-num">${ index + 1}</span>${
-					(todo.isWriteble) ? (`
-					<input class="todo-title" type="text" value = "${ todo.title }" >
-					`) : (`<span class="todo-title ${ todo.isDone && 'done' }">${ todo.title }</span>`)
-		
-					}${ 
-					
-					(writeMode && todo.isWriteble) ? (`
-					<button class="todo-edited">agree</button>
-					`)
-					:
-					(`<button ${ (writeMode && !todo.isWriteble) && 'disabled' } class="todo-editbtn">edit</button>`)
+				<li class="todo-item" item="${todo.id}">
+					<span class="todo-num">${index + 1}</span>${(todo?.isWriteble) ? (`
+					<input autofocus class="todo-title" type="text" value = "${todo.title}" >
+					`) : (`<span class="todo-title ${todo.isDone && 'done'}">${todo.title}</span>`)
 
-					
-					}<button ${ writeMode && 'disabled'} class="todo-choosenbtn">done</button>
-					<button ${ writeMode && 'disabled'} class="todo-deletebtn">delete</button>
+					}${(writeMode && todo?.isWriteble) ? (`
+						<button class="btn todo-edited">agree</button>
+					`)
+						:
+						(`<button ${(writeMode && !todo?.isWriteble) && 'disabled'} class="btn todo-editbtn">edit</button>`)
+
+
+					}<button ${writeMode && 'disabled'} class="btn todo-choosenbtn">done</button>
+					<button ${writeMode && 'disabled'} class="btn todo-deletebtn">delete</button>
 				</li>	
 				
 			`)).join('')
-		)
-		:
-		(`<h2 class="subtitle-warning">No time to chill, let's do something!</h2>`)
+			)
+				:
+				(`<h2 class="subtitle-warning">No time to chill, let's do something!</h2>`)
 
-		}</ul>
+			}</ul>
 		`)
 	}
 
@@ -183,7 +130,15 @@ class TodoController {
 
 		this.view.dispatch = this.dispatch;
 
-		this.view.render();
+		fetch('http://127.0.0.1:3000/api/todos')
+			.then(data => data.json())
+			.then(data => {
+				this.model._todos = data;
+				this.view.render();
+
+			})
+			.catch(err => console.log(err));
+
 	}
 
 	dispatch = (action) => {
@@ -192,37 +147,88 @@ class TodoController {
 
 		switch (action.type) {
 
-			case 'ADD-TODO':
-				model.addTodo(action.payload);
+			case 'ADD-TODO': {
+				req('http://127.0.0.1:3000/api/todos', { title: action.payload })
+					.then(data => {
+						this.model._todos = data;
+						this.view.render();
+					})
 				break;
-			
-			case 'REM-TODO':
-				model.removeTodo(action.payload);
+			}
+
+			case 'REM-TODO': {
+				req(`http://127.0.0.1:3000/api/todos/${action.payload}`, null, {
+					method: 'DELETE',
+					headers: {}
+				})
+					.then(data => {
+						this.model._todos = data;
+						this.view.render();
+					})
 				break;
-			
-			case 'TOGGLE-TODO-ISDONE':
-				model.toggleTodoDone(action.payload);
+
+			}
+
+			case 'TOGGLE-TODO-ISDONE': {
+				reqGet(`http://127.0.0.1:3000/api/todos/checked/${action.payload}`)
+					.then(data => {
+						this.model._todos = data;
+						this.view.render();
+					})
 				break;
-			
+			}
 			case 'TOGGLE-TODO-WRITEBLE':
-				this.model.toggleTodoWriteble(action.payload);
+				model.toggleTodoWriteble(action.payload);
 				break;
-			case 'GET-TODOS':
-				return model.getTodos();
-			
+
 			case 'GET-WRITEMODE':
 				return model.getWriteMode();
-			
-			case 'CHANGE-TODO-TILE':
-				model.changeTodoTitle(action.payload)
-			
+
+			case 'CHANGE-TODO-TILE': {
+				this.model._writeMode = false;
+				fetch(`http://127.0.0.1:3000/api/todos/edit/${action.payload.todoId}`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ enteredTitle: action.payload.newTitle })
+				})
+					.then(data => data.json())
+					.then(data => {
+						this.model._todos = data;
+						this.view.render();
+					});
+				break;
+
+			}
+
+
 			default: return;
 		}
 	}
 }
 
-const todos = [
-	{id: '1', title: 'Learn JavaScript', isDone: false, isWriteble: false},
-]
+async function req(url, body, config) {
+	const res = await fetch(url, Object.assign({
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(body),
+	}, config))
+		.then(data => data.json());
 
-const todo = new TodoController(new TodoModel(todos), new TodoView('todo'));
+	return res;
+}
+
+async function reqGet(url) {
+	const res = await fetch(url)
+		.then(data => data.json());
+
+	return res;
+}
+
+
+const model = new TodoModel();
+
+const todo = new TodoController(model, new TodoView('todo', model));

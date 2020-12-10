@@ -148,3 +148,8 @@ body {
 	color: rgb(39, 31, 83);
 	text-shadow: 1px 1px 5px grey;
 }
+
+
+.btn[disabled] {
+	opacity: 0.5;
+}
