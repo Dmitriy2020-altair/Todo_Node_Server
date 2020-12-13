@@ -8,7 +8,7 @@ class TodoModel {
 	}
 
 	toggleTodoWriteble(todoId) {
-		const todo = this._todos.find(todo => todo.id === +todoId);
+		// const todo = this._todos.find(todo => todo.id === +todoId);
 		const todoIndex = this._todos.findIndex(todo => todo.id === +todoId);
 		if (todoIndex === -1) return;
 		const newTodos = this._todos.slice();
@@ -47,7 +47,7 @@ class TodoView {
 		this.container.addEventListener('click', this.handleclick);
 	}
 
-	handleclick = (event) => {
+	handleclick(event) {
 		const target = event.target;
 		const todoId = target?.closest('.todo-item')?.getAttribute('item');
 
